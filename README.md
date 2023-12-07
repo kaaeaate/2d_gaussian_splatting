@@ -5,7 +5,7 @@ This repository contains implementation of awesone idea from [3D Gaussian Splatt
 ## Getting started
 Clone repository:
 ```commandline
-git clone https://github.com/kaaeaate/2D_GS.git
+git clone https://github.com/kaaeaate/2d_gaussian_splatting.git
 ```
 Install requirements as follows:
 ```commandline
