@@ -1,0 +1,43 @@
+import torch
+import torch.nn as nn
+import numpy as np
+from PIL import Image
+
+def normalize_points(args, points, middle_p=0.5):
+    middle_points = torch.tensor([middle_p, middle_p])
+    points = torch.tensor(points / [args.img_size[0], args.img_size[1]])
+    normalized_points = -2 * (points - middle_points)
+    return normalized_points.float().to(args.device) 
+
+def get_colors(args, image, points):
+    colors = torch.tensor([image[point[1], point[0]] for point in points])
+    return colors.float().to(args.device)
+
+def read_image(args):
+    image = Image.open(args.image_path).convert('RGB')
+    if image.size[0] != image.size[1]:
+        raise Exception('Please load image with equal width and height')
+    image = image.resize((args.img_size[0], args.img_size[1]))
+    image = np.array(image) / 255.0
+    return image
+
+def initialize_tensors(args):
+    image = read_image(args)    
+    points_places = torch.ones(args.start_points_number).bool()
+    points_free = torch.zeros(args.limit_points_number - args.start_points_number).bool()
+    current_points_places = torch.cat([points_places, points_free], dim=0)
+    
+    scaling = torch.rand(args.limit_points_number, 2, device=args.device)
+    rotation = torch.rand(args.limit_points_number, 1, device=args.device)
+    alphas = torch.ones(args.limit_points_number, 1, device=args.device)
+    points_locations = np.random.randint(0, [image.shape[0], image.shape[1]], size=(args.limit_points_number, 2))
+    colors = get_colors(args, image, points_locations)
+    points_locations = normalize_points(args, points_locations)
+    gt_image = torch.tensor(image).float().to(args.device)    
+    return gt_image, current_points_places, scaling, rotation, colors, alphas, points_locations
+
+def make_parameter(lst_tensors):
+    lst_parameters = []
+    for tensor in lst_tensors:
+        lst_parameters.append(nn.Parameter(tensor))
+    return lst_parameters
