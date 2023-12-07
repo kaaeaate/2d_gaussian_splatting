@@ -12,4 +12,3 @@ dependencies:
   - torchvision=0.13.1
   - tqdm
   - matplotlib
-  - opencv-python
