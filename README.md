@@ -11,6 +11,7 @@ Install requirements as follows:
 ```commandline
 conda env create --file requirements.yml
 conda activate 2d_gaussian_splatting
+pip install opencv-python
 ```
 Then run train.py:
 ```python
