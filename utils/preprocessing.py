@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from PIL import Image
+from utils.initialization import points_initialization
 
 def normalize_points(args, points, middle_p=0.5):
     middle_points = torch.tensor([middle_p, middle_p])
@@ -30,7 +31,7 @@ def initialize_tensors(args):
     scaling = torch.rand(args.limit_points_number, 2, device=args.device)
     rotation = torch.rand(args.limit_points_number, 1, device=args.device)
     alphas = torch.ones(args.limit_points_number, 1, device=args.device)
-    points_locations = np.random.randint(0, [image.shape[0], image.shape[1]], size=(args.limit_points_number, 2))
+    points_locations = points_initialization(args, image)
     colors = get_colors(args, image, points_locations)
     points_locations = normalize_points(args, points_locations)
     gt_image = torch.tensor(image).float().to(args.device)    
