@@ -4,6 +4,12 @@ from torchvision.models.detection import keypointrcnn_resnet50_fpn, KeypointRCNN
 from torchvision.models import ResNet50_Weights
 
 def points_initialization(opt, image):
+    '''
+    Different options for gaussian initialization: 
+        random -- fully random type
+        uniform -- uniform grid with 32 steps for one row
+        keypoints -- detected keypoints with added random points
+    '''
     if opt.initialization_type == 'random':
         points = random_initialization(opt, image)
     elif opt.initialization_type == 'uniform':

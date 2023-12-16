@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 from torch.optim import Adam
 import os
 import argparse
@@ -15,12 +16,20 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def train(args, gt_image, cov_matrix_tensor, rgba_matrix_tensor, points_locs_rensor, current_points_places, output_path):
+def train(args, 
+          gt_image: torch.Tensor, 
+          cov_matrix_tensor: nn.Parameter, 
+          rgba_matrix_tensor: nn.Parameter, 
+          points_locs_rensor: nn.Parameter, 
+          current_points_places: torch.Tensor, 
+          output_path: str):
     optimizer = Adam([cov_matrix_tensor, rgba_matrix_tensor, points_locs_rensor], lr=args.learning_rate)
     
     losses_lst = []
     last_added_point_idx = args.start_points_number
     for iteration in trange(args.first_iter, args.iterations+1):
+        
+        # Get Parameters by mask, where gaussians are located
         local_cov_m = cov_matrix_tensor[current_points_places]
         local_rgba = rgba_matrix_tensor[current_points_places]
         local_points = points_locs_rensor[current_points_places]     
@@ -66,6 +75,7 @@ def train(args, gt_image, cov_matrix_tensor, rgba_matrix_tensor, points_locs_ren
         losses_lst.append(loss)    
         torch.cuda.empty_cache()    
         
+        # Visualization and losses logging
         if iteration % 10 == 0 and iteration < 200: 
             visualize_result(gaussian_image, gt_image, f'{output_path}/images/iter_{iteration}.jpg', len(local_points))
         if iteration % args.logging_iter == 0:        
@@ -104,7 +114,7 @@ if __name__ == "__main__":
     parser.add_argument('--image_path', default='images/mikki.jpg', type=str)
     parser.add_argument('--output_folder', default=None, type=str)
     parser.add_argument('--get_video', default=False, type=bool)
-    parser.add_argument('--initialization_type', default='random', type=str, choices=['random', 'uniform', 'keypoints'])
+    parser.add_argument('--initialization_type', default='uniform', type=str, choices=['random', 'uniform', 'keypoints'])
     args, _ = parser.parse_known_args()
     args.device = 'cuda'
            

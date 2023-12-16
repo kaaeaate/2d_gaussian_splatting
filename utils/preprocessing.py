@@ -5,12 +5,18 @@ from PIL import Image
 from utils.initialization import points_initialization
 
 def normalize_points(args, points, middle_p=0.5):
+    '''
+    Normalize points locations to [-1, 1].
+    '''
     middle_points = torch.tensor([middle_p, middle_p])
     points = torch.tensor(points / [args.img_size[0], args.img_size[1]])
     normalized_points = -2 * (points - middle_points)
     return normalized_points.float().to(args.device) 
 
 def get_colors(args, image, points):
+    '''
+    Put colors from target image to initialized points locations.
+    '''
     colors = torch.tensor([image[point[1], point[0]] for point in points])
     return colors.float().to(args.device)
 
@@ -23,6 +29,9 @@ def read_image(args):
     return image
 
 def initialize_tensors(args):
+    '''
+    Get all tensors for gaussians building and optimization.
+    '''
     image = read_image(args)    
     points_places = torch.ones(args.start_points_number).bool()
     points_free = torch.zeros(args.limit_points_number - args.start_points_number).bool()
